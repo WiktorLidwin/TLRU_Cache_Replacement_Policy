@@ -22,7 +22,7 @@
  void
  TLRU::invalidate(const std::shared_ptr<ReplacementData>& replacement_data)
  {
-     // Reset last touch timestamp
+     // Reset last touch timestamp and refCount
     std::static_pointer_cast<TLRUReplData>(
          replacement_data)->lastTouchTick = Tick(0); 
 
@@ -32,7 +32,7 @@
  void
  TLRU::touch(const std::shared_ptr<ReplacementData>& replacement_data) const
  {
-     // Update last touch timestamp
+     // Update last touch timestamp and refCount
      std::static_pointer_cast<TLRUReplData>(
          replacement_data)->refCount++;
 
@@ -43,7 +43,7 @@
  void
  TLRU::reset(const std::shared_ptr<ReplacementData>& replacement_data) const
  {
-     // Set last touch timestamp
+     // Set last touch timestamp and refCount
      std::static_pointer_cast<TLRUReplData>(
          replacement_data)->refCount = 1;
 
@@ -57,7 +57,7 @@
      // There must be at least one replacement candidate
      assert(candidates.size() > 0);
   
-     // Visit all candidates to find victim
+     // Visit all candidates to find least access and oldest victim 
      ReplaceableEntry* victim = candidates[0];
      bool found = false;
      for (const auto& candidate : candidates) {
@@ -77,7 +77,7 @@
      }
      if (found)
       return victim;
-
+    // if not found, default to LRU
     for (const auto& candidate : candidates) {
          // Update victim entry if necessary
          if (std::static_pointer_cast<TLRUReplData>(
